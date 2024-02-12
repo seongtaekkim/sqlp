@@ -17,7 +17,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 [Section01 오라클아키텍처](docs/section01)
 
 - [01-기본아키텍처](docs/section01/01-기본아키텍처.md)
-- [01-기본아키텍처](docs/section01/02-DB버퍼캐시.md)
+- [02-DB버퍼캐시](docs/section01/02-DB버퍼캐시.md)
 
 [Section02 트랜잭션과 Lock]()
 
