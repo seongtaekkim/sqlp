@@ -21,6 +21,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [03-버퍼 Lock](docs/section01/03-버퍼Lock.md)
 - [04-Redo](docs/section01/04-Redo.md)
 - [05-Undo](docs/section01/05-Undo.md)
+- [06.문장수준읽기일관성](docs/section01/06-문장수준읽기일관성.md)
 
 [Section02 트랜잭션과 Lock]()
 
