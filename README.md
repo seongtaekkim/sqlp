@@ -27,9 +27,9 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [09-Snapshot-too-old](docs/section01/09-Snapshot-too-old.md)
 - [10-대기이벤트](docs/section01/10-대기이벤트.md)
 
-[Section02 트랜잭션과 Lock]()
+[Section02 트랜잭션과 Lock](docs/section02/00-outline.md)
 
-
+- [01-트랜잭션동시성제어](docs/section02/01-트랜잭션동시성제어)
 
 
 
