@@ -30,7 +30,9 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 [Section02 트랜잭션과 Lock](docs/section02/00-outline.md)
 
 - [01-트랜잭션동시성제어](docs/section02/01-트랜잭션동시성제어.md)
-- [02-트랜잭션수준읽기일관성](docs/section02/02-트랜잭션수준읽기일관성)
+- [02-트랜잭션수준읽기일관성](docs/section02/02-트랜잭션수준읽기일관성.md)
+- [03-비관적-vs-낙관적동시성제어](docs/section02/03-비관적-vs-낙관적동시성제어.md)
+- [04-동시성구현사례](docs/section02/04-동시성구현사례.md)
 
 
 
