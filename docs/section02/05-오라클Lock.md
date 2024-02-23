@@ -428,6 +428,344 @@ alter index t_idx rebuild INITRANS 5;
 
 
 
+## 6) TX Lock > 기타 트랜잭션 Lock
+
+- Shared 모드 enq: TX - contention 대기 이벤트
+  - 분산 트랜잭션에서 2-Phase 커밋을 위한 PREPARED TX Lock을 대기할 때 발생한다(오라클 매뉴얼)
+  - 앞에서 열거한 중요한 TX Lock 이외의 트랜잭션 대기 상황을 모두 여기에 포함한 것 같음(추측)
+
+- 읽기 전용 테이블스페이스로 전환시 TX Lock 경합이 발견됨
+  - USERS 테이블스페이스에 DML을 수행하는 트랜잭션이 아직 남아있는 상태에서 아래 명령을 수행시 Shared 모드로 TX Lock 대기
+
+```
+alter tablespace USERS read only;
+```
+
+
+
+## 7) TX Lock > DML 로우 Lock
+
+
+
+
+
+#### 1] 로우 Lock
+
+- **DML Lock은 다중 사용자에 의해 동시에 액세스되는 사용자 데이터의 무결성을 보호**
+- DML 수행 중에 호환되지 않는 다른 DML 또는 DDL 오퍼레이션의 수행을 방지시켜 준다
+- 로우 Lock은 두 개의 트랜잭션이 동시에 같은 로우를 변경하는 것을 방지
+- **오라클은 로우 Lock을 로우 단위(row-level) Lock과 TX Lock을 조합해서 구현**
+  - 로우를 갱신하려면 Undo 세그먼트에서 트랜잭션 슬롯을 할당받고
+  - Enqueue 리소스를 통해 TX Lock을 획득한다.
+  - dml 문장을 통해 갱신하는 각 로우마다 Exclusive 모드로 로우 단위 Lock을 획득
+    - 트랜잭션을 시작할 때 한 번만 획득
+
+
+
+#### 2] 로우 단위 Lock
+
+- **블록 헤더 ITL과 로우 헤더 Lock Byte 설정을 의미**
+  - TX1 트랜잭션이 로우 정보를 갱신할 때는 블록 헤더 ITL 슬롯에 트랜잭션 ID를 기록
+  - 로우 헤더에 이를 가리키는 Lock Byte를 설정
+- **이를 통해 로우를 갱신중인 트랜잭션 상태를 확인하고 액세스 가능 여부를 결정**
+  - 이 레코드를 액세스하려는 다른 트랜잭션은 로우 헤더에 설정한 Lock Byte를 통해 ITL 슬롯을 찾고
+  - ITL 슬롯이 가리키는 Undo 세그먼트 헤더의 트랜잭션 슬롯에서 트랜잭션 상태 정보를 확인하여 해당 레코드에 대한 액세스 가능 여부를 결정
+  - TX1 트랜잭션이 진행중일 때 이 레코드를 읽으려는 TX2 트랜잭션은 TX1 트랜잭션의 상태를 확인하고 CR 블록을 생성해서 읽기 작업을 완료
+- 오라클은 이처럼 로우 단위 Lock과 다중 버전 읽기 일관성 메커니즘을 이용함으로써 읽기 작업(select for update 문이 아닌)에 대해 Lock에 의한 대기 현상이 발생하지 않도록 구현해 놓았다. (분산트랜잭션은 예외가 존재한다고 함)
+
+
+
+#### 3] TX Lock
+
+- **Enqueue 리소스를 통해 TX Lock을 설정하는 것을 의미**
+- **Lock이 설정된 레코드를 갱신하고자 할 때 Enqueue 리소스에서 대기**
+  - TX1이 갱신중인 레코드를 같이 갱신하려는 TX2 트랜잭션은 TX1 트랜잭션이 완료될 때까지 대기
+  - 이를 위해 TX Lock이 필요하다.
+
+
+
+
+
+##### DML 로우 Lock에 의한 TX Lock 때문에 블로킹된 세션을 보면 
+
+##### Exclusive 모드의 enq: TX - row lock contention 대기 이벤트가 지속적으로 나타난다.
+
+
+
+## 8) TM Lock > DML 테이블 Lock
+
+
+
+##### 테이블 Lock
+
+- 현재 트랜잭션이 갱신 중인 테이블에 대한 테이블 구조 변경 방지
+  - 로우 Lock 획득시 해당 테이블에 대한 테이블 Lock도 동시에 획득
+  - 갱신중인 테이블에 대한 호환되지 않는 DDL 오퍼레이션을 방지
+- DML문 간에도 테이블 Lock을 이용해 동시성 제어하는 경우도 있다.
+
+
+
+##### 명시적인 테이블 Lock(Lock Table 명령어)
+
+- lock table emp in row share mode
+- lock table emp in row exclusive mode
+- lock table emp in share mode
+- lock table emp in share row exclusive mode
+- lock table emp in exclusive mode
+
+
+
+##### Lock 모드간 호환성(Compatibility)
+
+- 로우 Lock은 항상 Exclusive 모드(row 변경시에만 Lock을 사용함)이지만, 테이블 Lock에는 여러 가지 Lock 모드가 가용됨
+
+|          | Null | RS   | RX   | S    | SRX  | X    |
+| :------- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Null** | O    | O    | O    | O    | O    | O    |
+| **RS**   | O    | O    | O    | O    | O    |      |
+| **RX**   | O    | O    | O    |      |      |      |
+| **S**    | O    | O    |      | O    |      |      |
+| **SRX**  | O    | O    |      |      |      |      |
+| **X**    | O    |      |      |      |      |      |
+
+- RS : Row Share(또는 SS : sub share)
+  - select for update 문을 위해 로우 Lock을 설정하려면 먼저 획득해야 함
+- RX : Row Exclusive(또는 SX : sub exclusive)
+  - insert, update, delete, merge 문을 위해 로우 Lock을 설정하려면 먼저 획득해야 함
+- S : Share
+- SRX : share row exclusive(또는 SSX : share/sub exclusive)
+- X : exclusive
+
+
+
+- 선행 트랜잭션과 호환되지 않는 모드로 테이블 Lock을 설정하려는 후행 트랜잭션은 대기하거나 작업을 포기해야 한다
+- RS, RX 간에는 어떤 조합으로도 호환이 되므로 select for update나 DML문 수행시 이들간에 테이블 Lock에 의한 경합은 절대 발생하지 않는다
+  - 다만, 같은 로우를 갱신하려 할 때 로우 Lock에 의한 경합은 발생
+
+
+
+##### TM Lock
+
+- 오라클 테이블 Lock도 Enqueue로 구현 ( == TM Enqueue)
+- 테이블 Lock을 TM Lock이라고 부르기도 한다.
+- TM Enqueue 리소스 구조체의 식별자
+
+| Type | ID1         | ID2  |
+| :--- | :---------- | :--- |
+| TM   | 오브젝트 ID | 0    |
+
+- 선행 트랜잭션이 TM Lock을 해제하기를 기다리는 트랜잭션에서 발생하는 대기 이벤트
+- enq: TM - contention 이벤트가 지속적으로 나타남
+
+
+
+##### 테이블 Lock 의미
+
+- 테이블 전체에 Lock이 걸려서 다른 트랜잭션이 더는 레코드를 추가하거나 갱신하지 못하도록 막는다고 생각하기 쉬움
+- DML 수행시 항상 Table Lock이 함께 설정되므로 위 내용은 맞지 않다.
+- Lock을 획득한 선행 트랜잭션이 해당 테이블에서 현재 어떤 작업을 수행중인지 알리는 일종의 푯말(Flag)으로 이해해야 한다.
+- 여러 가지의 Lock 모드에 따라 후행 트랜잭션이 수행할 수 있는 작업의 범위가 결정됨
+- 푯말에 기록된 Lock 모드와 후행 트랜잭션이 현재 하려는 작업 내용에 따라 진행 여부가 결정됨
+  - 진행할 수 없다면 기다릴지, 작업을 포기할지 진로를 결정(내부적으로 하드코딩 돼 있거나 사용자가 지정한 옵션에 따라 결정)해야 함
+  - 기다려야 한다면 TM Enqueue 리소스 대기자 목록에 Lock 요청을 등록하고 대기
+  - 예) DDL문을 이용해 테이블 구조를 변경하려는 세션
+    - 해당 테이블에 TM Lock이 설정돼 있는지 먼저 확인
+    - TM Lock을 Row Exclusive(=SX) 모드로 설정한 트랜잭션이 하나라도 있다면 현재 테이블을 갱신중인 트랜잭션이 있다는 신호이므로 ORA-00054 메시지를 던지고 작업을 멈춤
+    - DDL문이 먼저 수행중일 경우는 DML문을 수행하려는 세션이 TX Lock을 얻으려고 대기(enq: TM - contention 이벤트 발생)
+
+
+
+
+
+**대상 리소스가 사용중일 때 진로 선택**
+
+- Lock을 얻고자 하는 리소스가 사용중일 때, 프로세스는 3가지 방법 중 하나를 선택
+- 보통은 진로가 결정돼 있지만 사용자가 선택하는 경우도 있음(select for update 문 사용)
+
+1. Lock이 해제될 때까지 기다린다.(select * from t for update)
+2. 일정 시간만 기다리다 포기한다.(select * from t for update wait 3)
+   - 포기할 때 ORA-30006: resource busy; acquire with WAIT timeout expired 메시지를 던짐
+3. 기다리지 않고 작업을 포기한다.(select * from t for update nowait)
+   - 작업을 포기할 때 ORA-00054: resource busy and acquire with NOWAIT specified 메시지를 던짐
+
+- DML문을 수행할 때 묵시적으로 테이블 Lock을 얻게 되고, 1번 기다리는 방법을 선택
+- Lock Table 명령을 이용해 명시적으로 테이블 Lock을 얻을 때도 기본적으로 기다리는 방법을 선택하지만, NOWAIT 옵션을 사용해 곧바로 작업을 포기하도록 사용자가 지정할 수 있음
+
+```
+lock table emp in exclusive mode NOWAIT;
+```
+
+- DDL문을 수행할 때도 내부적으로 테이블 Lock을 얻음(이 경우는 NOWAIT 옵션이 자동으로 지정됨)
+
+
+
+
+
+테이블Lock은DDL과 동시진행을 막으려고 사용할 뿐 아니라 
+DML간에도 테이블 Lock을 이용해 동시성을 제어하는 경우에도 사용한다.
+
+- 병렬 DML 또는 Direct Path Insert 방식으로 작업을 수행하는 경우가 그렇다.
+
+
+
+
+
+### 예제)
+
+- 1번 세션(SID=275)에서 T1 테이블에 Append 힌트로 Insert를 수행
+
+##### sesson1
+
+```sql
+drop table t;
+drop table t1;
+create table t (a number) ;
+create table t1 (a number) ;
+
+begin
+  for item in 1..100
+  loop
+    insert into t values(item);
+    commit write nowait;
+  end loop;
+end;
+/
+insert /*+ append */ into t1 select * from t;
+
+select l.session_id SID 
+, (case when lock_type = 'Transaction' then 'TX'
+        when lock_type = 'DML' then 'TM' end) TYPE
+  , mode_held
+  , mode_requested mode_reqd
+  , (case when lock_type = 'Transaction' then
+               to_char(trunc(lock_id1/power(2,16)))
+          when lock_type='DML' then
+               (select object_name from dba_objects
+                where object_id = l.lock_id1)
+     end) "USN/Table"
+  , (case when lock_type = 'Transaction' then
+               to_number(lock_id1) end) "SQN"
+  , (case when blocking_others = 'Blocking' then ' <<<<<' end) Blocking
+   from dba_lock l       
+  where lock_type in ('Transaction', 'DML')
+order by session_id, lock_type, lock_id1, lock_id2 ; 
+
+
+
+       SID TY MODE_HELD  MODE_REQD  USN/Table         SQN BLOCKING
+---------- -- ---------- ---------- ---------- ---------- ------
+275	TM	Exclusive	None	T1		
+275	TX	Exclusive	None	5	327705	
+```
+
+- DML문을 수행하니 TX Lock과 TM Lock을 동시에 획득함
+  - 일반적인 DML문에서는 테이블 Lock(=TM Lock)을 Row Exclusive(=SX) 모드로 설정하지만, 여기서는 Append 모드로 Insert를 수행했기 때문에 Exclusive 모드임
+- 2번 세션(SID=296)에서 T1 테이블의 레코드 하나를 갱신하는 update문을 수행하고 Lock을 모니터링
+
+##### sesson2
+
+```sql
+update t1
+set a = 100
+where rownum=1;
+
+
+       SID TY MODE_HELD  MODE_REQD  USN/Table         SQN BLOCKING
+---------- -- ---------- ---------- ---------- ---------- ------
+275	TM	Exclusive	None	T1		 <<<<<
+275	TX	Exclusive	None	2	131080	
+296	TM	None	Row-X (SX)	T1		
+```
+
+- 일반적인 DML문을 사용했으므로 Row Exclusive(=SX) 모드로 테이블 Lock을 요청했음
+  - Row Exclusive 모드 Lock은 Exclusive 모드와 호환성이 없으므로 2번 세션은 블로킹됨
+  
+  - 로우 Lock이 아니라 테이블 Lock 때문에 블로킹된 점을 주목
+  
+  - **로우 Lock 호환성을 확인하기 전에 테이블 Lock 호환성을 먼저 확인한다는 사실을 알 수 있음**
+  
+    
+
+##### v$session_wait 뷰를 통해 2번 세션(SID=296)의 이벤트 상황을 조회
+
+```sql
+select event, wait_time, seconds_in_wait, state
+  from v$session_wait
+  where sid = 296 ;
+  
+  
+EVENT                             WAIT_TIME SECONDS_IN_WAIT STATE
+------------------------------------------- --------------- -------------------
+enq: TM - contention	0	93	WAITING
+```
+
+- - Exclusive 모드 테이블 Lock을 먼저 획득한 1번 세션(SID=275)을 커밋하고 다시 Lock을 모니터링
+
+```sql
+       SID TY MODE_HELD  MODE_REQD  USN/Table         SQN BLOCKING
+---------- -- ---------- ---------- ---------- ---------- ---------
+296	TM	Row-X (SX)	None	T1		
+296	TX	Exclusive	None	8	524298	
+```
+
+- 1번 세션은 Lock을 모두 해제했으므로 쿼리 결과에서 사라짐
+  - 2번 세션이 TX Lock과 TM Lock을 동시에 획득
+- 2번 세션이 현재 Lock을 걸고 있는 레코드를 1번 세션에서 변경하고 Lock을 모니터링
+
+```sql
+update t1
+set a = 100
+where rownum=1;
+
+
+       SID TY MODE_HELD  MODE_REQD  USN/Table         SQN BLOCKING
+---------- -- ---------- ---------- ---------- ---------- --------------------
+       275 TM Row-X (SX)			       None					T1
+       275 TX None				       Exclusive				8					     524298
+       296 TM Row-X (SX)			       None					T1
+       296 TX Exclusive 			       None					8					     524298  <<<<<
+```
+
+- 이번에는 테이블 Lock에 의한 블로킹이 아니라 로우 Lock 때문에 블로킹이 발생했음
+  - Exclusive 모드 로우 Lock 간에는 호환성이 없기 때문
+  - Row-Exclusive 모드 테이블 Lock 간에는 호환성이 있으므로 Lock 경합이 발생하지 않음
+- TX Lock은 트랜잭션마다 오직 한 개만 획득
+- TM Lock은 트랜잭션에 의해 변경이 가해진 오브젝트 수만큼 획득함
+
+
+
+##### Expert One-On-One Oracle(Thomas Kyte 저)에 나오는 예시
+
+- TX Lock은 트랜잭션마다 오직 한 개씩 획득하는 반면, TM Lock은 트랜잭션에 의해 변경이 가해진 오브젝트 수만큼 획득한다.
+
+```sql
+create table test1 (x int);
+create table test2 (x int);
+insert into test1 values(1);
+insert into test2 values(1);
+
+select username, v$lock.sid, id1, id2
+      , lmode, request, block, v$lock.type
+   from v$lock, v$session
+  where v$lock.sid = v$session.sid
+    and v$session.username = 'SYS' ; 
+    
+
+USERNAME          SID        ID1        ID2      LMODE    REQUEST      BLOCK TY
+---------- ---------- ---------- ---------- ---------- ---------- ---------- --
+SYS	275	131105	1511	6	0	0	TX
+SYS	275	78079	0	3	0	0	TM
+SYS	275	78080	0	3	0	0	TM
+
+
+
+select object_name, object_id from user_objects
+where object_name in ('TEST1','TEST2')
+OBJECT_NAME                     OBJECT_ID
+------------------------------ ----------
+TEST1	78079
+TEST2	78080
+```
 
 
 
@@ -437,10 +775,114 @@ alter index t_idx rebuild INITRANS 5;
 
 
 
+## 9) Lock을 푸는 열쇠, 커밋
 
 
 
+#### 1] 블로킹(Blocking)과 교착상태(Deadlock)
 
+어떤 dml을 실행했을 때, 멈춰있다면 블로킹 상태일까 교착상태일까? 해결은?
+
+
+
+##### 블로킹(Blocking)
+
+- Lock 경합이 발생해 특정 세션의 작업을 진행하지 못하고 멈춰 선 경우
+- 커밋 또는 롤백으로 해소
+
+
+
+##### 교착상태(Deadlock)
+
+- 두 세션이 각각 Lock을 설정한 리소스를 서로 액세스하려고 마주보고 진행하는 상황
+- 둘 중 하나가 물러나지 않으면 영영 풀릴 수 없음
+- 교착상태가 발생하면 이를 먼저 인지한 세션이 문장 수준 롤백을 진행한 후 에러 메시지를 던짐
+  - **ORA-00006: deadlock detected while waiting for resource**
+  - Lock 경합 때문에 대기 상태에 빠질 때 3초의 타임아웃을 설정하는 이유(교착상태 발생 인지)
+- 교착상태는 해소됐지만 블로킹 상태에 놓이게 됨
+  - 이 메시지를 받은 세션은 커밋 또는 롤백을 결정해야 함
+  - 프로그램 내에서 이 에러에 대한 예외 처리(커밋 또는 롤백)을 하지 않으면 대기상태를 지속하게 되므로 주의
+
+
+
+#### 2] 오라클은 데이터를 읽을 때 Lock을 사용하지 않음
+
+- 다른 DBMS에 비해 상대적으로 Lock 경합이 적게 발생
+- 읽는 세션의 진행을 막는 부담이 없어 필요한 만큼 트랜잭션을 충분히 길게 가져갈 수 있음
+
+- **그러나, 불필요하게 트랜잭션을 길게 정의하지 않도록 주의**
+  - 트랜잭션이 너무 길면 롤백이 필요한 경우 너무 많은 시간이 걸릴 수 있음
+  - **Undo 세그먼트가 고갈되거나 Undo 세그먼트 경합을 유발할 수도 있음**
+  - 같은 데이터를 갱신하는 트랜잭션이 동시에 수행되지 않도록 설계
+  - DML Lock 때문에 동시성이 저하되지 않도록 적절한 시점에 커밋 처리
+
+- **반대로, 불필요하게 커밋을 너무 자주 수행하면**
+  - **Snapshot too old(ORA-01555) 에러를 유발할 가능성 높아짐**
+  - LGWR가 로그 버퍼를 비우는 동안 발생하는 log file sync 대기 이벤트 때문에 성능 저하 우려
+  - 잦은 커밋 때문에 성능이 느리다면 비동기식 커밋 기능 활용 검토(10gR2부터 제공)
+
+
+
+#### 3] 커밋 명령 옵션
+
+- WAIT(Default)
+  - LGWR가 로그버퍼를 파일에 기록했다는 완료 메시지를 받을 때까지 대기
+  - 그동안 log file sync 대기 이벤트 발생(동기식 커밋)
+
+- NOWAIT
+  - LGWR의 완료 메시지를 기다리지 않고 바로 다음 트랜잭션을 진행
+  - log file sync 대기 이벤트가 발생하지 않음(비동기식 커밋)
+
+- IMMEDIATE(Default)
+  - 커밋 명령을 받을 때마다 LGWR가 로그 버퍼를 파일에 기록
+
+- BATCH
+  - 세션 내부에 트랜잭션 데이터를 일정량 버퍼링했다가 일괄 처리
+- commit_write 파라미터를 이용해 시스템 또는 세션 레벨에서 기본 설정을 변경 가능
+- 각 옵션별 수행속도 테스트
+  - **실제 macos 에 21c Mem4G 도커환경에서 실시함**
+
+
+```sql
+drop table t;
+create table t (a number) ;
+
+begin
+  for item in 1..10000
+  loop
+    insert into t values(item);
+    commit write [immediate | batch] [wait | nowait];
+  end loop;
+end;
+/
+
+COMMIT WRITE IMMEDIATE WAIT ;   -- 21초
+COMMIT WRITE IMMEDIATE NOWAIT ; -- 8초
+COMMIT WRITE BATCH WAIT ;       -- 20초
+COMMIT WRITE BATCH NOWAIT ;     -- 3.5초
+```
+
+- Nowait 옵션에 의한 성능개선 효과는 크게 두드러지지만 Batch 옵션의 영향력은 미미
+- Batch 옵션은 IMU(In-Memory Undo) 기능과 관련(추정)
+- 위 테스트를 수행하는 도중 v$sesstat 각 항목의 변화량(delta)를 측정하여 가장 큰 차이를 보인 항목 선별
+
+| Statistics Name            | Immediate (wait, nowait) | Batch (wait, nowait) |
+| :------------------------- | :----------------------- | :------------------- |
+| Commit immediate requested | 100,000                  | 0                    |
+| Commit immediate performed | 100,000                  | 0                    |
+| Commit batch requested     | 0                        | 100,000              |
+| Commit batch performed     | 0                        | 100,000              |
+| Session pga memory         | 0                        | 262,144              |
+| IMU Flushes                | 94,005                   | 435                  |
+| IMU commits                | 0                        | 93,892               |
+| IMU Redo allocation size   | 36,605,152               | 118,440              |
+| IMU Undo allocation size   | 34, 549, 388             | 34,667,516           |
+
+- Batch 옵션을 사용했을 때 PGA 메모리 할당량이 늘어남
+  - PGA 영역에 트랜잭션 데이터를 일정량 버퍼링했다가 일괄 처리(추정)
+- 일반적인 커밋(immediate wait)은 트랜잭션 데이터가 데이터베이스에 안전하게 저장됨을 보장
+- 비동기식 커밋 옵션 사용시 트랜잭션 커밋 직후 인스턴스에 문제가 생기거나, Redo 로그가 위치한 파일 시스템에 문제가 생겨 쓰기 작업을 진행할 수 없게 되면 커밋이 정상적으로 완료되지 못할 우려가 있음
+  - 트랜잭션에 의해 생성되는 데이터의 중요도에 따라 이 옵션의 사용여부를 판단하여 결정해야 함
 
 
 
