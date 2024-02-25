@@ -51,6 +51,8 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 ### [Section04 라이브러리 캐시 최적화 원리](docs/section04/00-outline.md)
 
+- [01-SQL과옵티마이저](docs/section04/01-SQL과옵티마이저.md)
+
 
 
 
