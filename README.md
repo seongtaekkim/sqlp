@@ -39,6 +39,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 - [01-ExplainPlan](docs/section03/01-ExplainPlan.md)
 - [02-AutoTrace](docs/section03/02-AutoTrace.md)
+- [03-SQL트레이스](docs/section03/03-SQL트레이스.md)
 - [04-DBMS_XPLAN패키지](docs/section03/04-DBMS_XPLAN패키지.md)
 - [05-VSYSSTAT](docs/section03/05-VSYSSTAT.md)
 - [06-VSYSTEM_EVENT](docs/section03/06-VSYSTEM_EVENT.md)
