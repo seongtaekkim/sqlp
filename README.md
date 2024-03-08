@@ -59,6 +59,9 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [05-바인드변수의중요성](docs/section04/05-바인드변수의중요성.md)
 - [06-바인드변수의부장용과해법](docs/section04/06-바인드변수의부장용과해법.md)
 - [07-세션커서캐싱](docs/section04/07-세션커서캐싱.md)
+- [08-애플리케이션커서캐싱](docs/section04/08-애플리케이션커서캐싱.md)
+- [09-Static-VS-DynamicSQL](docs/section04/09-Static-VS-DynamicSQL.md)
+- [10-DynamicSQL사용기준](docs/section04/10-DynamicSQL사용기준.md)
 
 
 
