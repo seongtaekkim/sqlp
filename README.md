@@ -62,7 +62,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [08-애플리케이션커서캐싱](docs/section04/08-애플리케이션커서캐싱.md)
 - [09-Static-VS-DynamicSQL](docs/section04/09-Static-VS-DynamicSQL.md)
 - [10-DynamicSQL사용기준](docs/section04/10-DynamicSQL사용기준.md)
-- [11-Static SQL 구현을 위한 기법들](docs/section04/11-Static SQL 구현을 위한 기법들.md)
+- [11-Static SQL 구현을 위한 기법들](docs/section04/11-StaticSQL구현을위한기법들.md)
 
 
 
