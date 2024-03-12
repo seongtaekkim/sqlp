@@ -64,9 +64,9 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [10-DynamicSQL사용기준](docs/section04/10-DynamicSQL사용기준.md)
 - [11-Static SQL 구현을 위한 기법들](docs/section04/11-StaticSQL구현을위한기법들.md)
 
+## [Section05 ](docs/section05/00-outline.md)
 
-
-
+- [01-Call통계](docs/section05/01-Call통계.md)
 
 
 
