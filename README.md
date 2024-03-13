@@ -67,6 +67,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 ## [Section05 ](docs/section05/00-outline.md)
 
 - [01-Call통계](docs/section05/01-Call통계.md)
+- [02-UserCall-VS-RecursiveCall](docs/section05/02-UserCall-VS-RecursiveCall.md)
 
 
 
