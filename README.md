@@ -68,6 +68,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 - [01-Call통계](docs/section05/01-Call통계.md)
 - [02-UserCall-VS-RecursiveCall](docs/section05/02-UserCall-VS-RecursiveCall.md)
+- [03-데이터베이스Call이성능에미치는영향](docs/section05/03-데이터베이스Call이성능에미치는영향.md)
 
 
 
