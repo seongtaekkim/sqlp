@@ -70,7 +70,9 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [02-UserCall-VS-RecursiveCall](docs/section05/02-UserCall-VS-RecursiveCall.md)
 - [03-데이터베이스Call이성능에미치는영향](docs/section05/03-데이터베이스Call이성능에미치는영향.md)
 - [04-ArrayProcessing활용](docs/section05/04-ArrayProcessing활용.md)
+- [05-FetchCall최소화](docs/section05/05-FetchCall최소화.md)
 - [06-페이지처리의중요성](docs/section05/06-페이지처리의중요성.md)
+- [07-PLSQL함수의특징과성능부하](docs/section05/07-PLSQL함수의특징과성능부하.md)
 
 
 
