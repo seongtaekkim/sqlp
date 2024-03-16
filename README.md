@@ -73,6 +73,17 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [05-FetchCall최소화](docs/section05/05-FetchCall최소화.md)
 - [06-페이지처리의중요성](docs/section05/06-페이지처리의중요성.md)
 - [07-PLSQL함수의특징과성능부하](docs/section05/07-PLSQL함수의특징과성능부하.md)
+- [08-PLSQL함수호출부하해소방안](docs/section05/08-PLSQL함수호출부하해소방안.md)
+
+## [Section06 ](docs/section06/00-outline.md)
+
+- [01-블록단위IO](docs/section06/01-블록단위IO.md)
+- [02-Memory-VS-DiskIO](docs/section06/02-Memory-VS-DiskIO.md)
+- [03-SingleBlock-VS-MultiblockIO](docs/section06/03-SingleBlock-VS-MultiblockIO.md)
+- [04-Prefetch](docs/section06/04-Prefetch.md)
+- [05-DirectPathIO](docs/section06/05-DirectPathIO.md)
+- [06-RAC캐시퓨전](docs/section06/06-RAC캐시퓨전.md)
+- [07-Result캐시](docs/section06/07-Result캐시.md)
 
 
 
