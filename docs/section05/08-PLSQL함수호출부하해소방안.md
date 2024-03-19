@@ -593,10 +593,9 @@ total       41      0.00       0.00          6         60          0          20
 
 
 
-~~~
-
+~~~sql
 create or replace function ACCUM (p_input number) return number 
-*DETERMINISTIC* 
+DETERMINISTIC
 as 
   rValue number := 0 ; 
   call_cnt number := 0; 
@@ -606,7 +605,7 @@ begin
     call_cnt := 0; 
   end if; 
  
-  *dbms_application_info.set_client_info(call_cnt + 1);* 
+  dbms_application_info.set_client_info(call_cnt + 1);
  
   for i in 1..p_input loop 
     rValue := rValue + i ; 
@@ -621,16 +620,29 @@ from (
   from dual 
   connect by level <= 1000000 
 ) ; 
-*경   과: 00:00:01.54* 
+
+
+SUM(ACCUM_NUM)
+--------------
+     416500000
+
+Elapsed: 00:00:06.45
+
+
  
 select sys_context('userenv', 'client_info') from dual; 
  
 SYS_CONTEXT('USERENV','CLIENT_INFO') 
 ----------------------------------------------------------------- 
-50
+100
 ~~~
 
-~~~
+- 1,000,000번 호출했지만 실제 호출 횟수는 100번 **<-- 책에서는 50번인데 왜 실제는 100이지?**
+- SUM을 구하는 쿼리 이므로 한 번의 Fetch Call 내에 캐시 상태를 유지하며 처리 완료.
+
+- Deterministic 키워드를 제거하고 테스트
+
+~~~sql
 exec dbms_application_info.set_client_info( NULL ); 
 select sum(accum_num) 
 from ( 
@@ -638,7 +650,14 @@ from (
   from dual 
   connect by level <= 1000000 
 ) ; 
-*경   과: 00:00:13.56* 
+
+
+SUM(ACCUM_NUM)
+--------------
+     416500000
+
+Elapsed: 00:00:07.33
+
  
 select client_info 
 from   v$session 
@@ -646,11 +665,14 @@ where  sid = sys_context('userenv', 'sid');
  
 CLIENT_INFO 
 ------------------------------------------------------- 
-1000000
+50
 
 ~~~
 
+- 함수 50번 호출, 7초 소요. **<- 책에서는 백만번 호출인데 왜 차이가 나는걸까?**
 
+- Deterministic 키워드는 그 함수가 일관성 있는 결과를 리턴함을 선언하는 것일 뿐,그것을 넣었다고 해서 일관성이 보장되는 것은 아니다.
+- 시점과 무관하게 항상 일관성 있는 결과를 출력하는 함수에 캐싱효과를 위해 Deterministic 함수의 사용은 올바른 활용 사례지만, 함수가 쿼리문을 포함할 때는 캐싱효과를 위해 함부로 Deterministic으로 선언하면 안된다.
 
 
 
@@ -658,5 +680,7 @@ CLIENT_INFO
 
 ## 6) 복잡한 함수 로직을 풀어 SQL로 구현
 
-- 함수 호출의 부하를 중간집합을 생성하여 조인으로 풀어낸 사례.
-- 주식을 아는 분만 p.423 ~ p.428 읽어 볼 것.
+함수 호출의 부하를 중간집합을 생성하여 조인으로 풀어낸 사례.
+
+- 때와 상황에 맞추어 사용하는게 좋을듯하다.
+- 주식로직에 특화되어있어 굳이 이해하지 않아도 될 거 같다.
