@@ -84,6 +84,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [05-DirectPathIO](docs/section06/05-DirectPathIO.md)
 - [06-RAC캐시퓨전](docs/section06/06-RAC캐시퓨전.md)
 - [07-Result캐시](docs/section06/07-Result캐시.md)
+- [08-IO효율화원리](docs/section06/08-IO효율화원리.md)
 
 
 
