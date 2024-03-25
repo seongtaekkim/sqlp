@@ -12,7 +12,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 
 
-## Section
+## 1권
 
 ### [Section01 오라클아키텍처](docs/section01)
 
@@ -85,6 +85,16 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [06-RAC캐시퓨전](docs/section06/06-RAC캐시퓨전.md)
 - [07-Result캐시](docs/section06/07-Result캐시.md)
 - [08-IO효율화원리](docs/section06/08-IO효율화원리.md)
+
+
+
+## 2권
+
+## [Section01 인덱스 원리와 활용](docs/section01)
+
+- [01-인덱스구조](docs2/section01/01-인덱스구조.md)
+
+
 
 
 
