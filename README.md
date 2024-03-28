@@ -95,6 +95,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [01-인덱스구조](docs2/section01/01-인덱스구조.md)
 - [02-인덱스기본원리](docs2/section01/02-인덱스기본원리.md)
 - [03-다양한인덱스스캔방식](docs2/section01/03-다양한인덱스스캔방식.md)
+- [04-테이블Random액세스부하](docs2/section01/04-테이블Random액세스부하.md)
 
 
 
