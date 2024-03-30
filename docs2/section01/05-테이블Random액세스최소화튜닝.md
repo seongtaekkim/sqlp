@@ -252,3 +252,118 @@ Rows     Row Source Operation
 
 - 인덱스 스캔 단계에서 블록 I/O횟수가 139에서 308로 증가하였고, 테이블 Random Acess에서의 블록 I/O 횟수는 685(=824-139) 에서 33,672(33880-308) 으로 증가 한 것을 보아 **인덱스에 컬럼을 추가 했더니 기존에 사용하던 쿼리 성능이 매우 나빠졌다**
 - Object_type 처럼 변별력이 좋지 않은 컬럼 뒤에 변별력이 좋은 다른 컬럼을 추가할 때는 클러스터링 팩터 변화에 주의를 기울여야 한다.
+
+
+
+
+
+
+
+## 4) 인덱스만 읽고 처리
+
+- Random액세스가 아무리 많더라도 필터조건에 의해 버려지는 레코드가 없는 경우에는 아예 테이블 액세스가 발생하지 않도록 모든 필요한 컬럼을 인덱스에포함 시키는 방법을 고려하면 된다.
+- 이것을 '{*}{+}Covered Index'{+}{*}라고 부르고, 인덱스만 읽고 처리하는 쿼리를 **Covered 쿼리**라고 한다.
+
+
+
+
+
+### 사례1
+
+요약하면, 스칼라 쿼리의 cmpgn_obj_cust 테이블 조건에 7개 가 있었지만 그 중 인덱스 컬럼이 6개로 이루어져 있어 Random액세스 부하가 심하므로 맨 뒤에 asgn_yn 을 추가 한다.
+
+그 결과 IO블록 개수가 극단적으로 줄었고, 시간도 31초 -> 0.x 초로 개선되었다.
+
+
+
+### 사례2
+
+두번 째 사례도 where조건 _+ order by 컬럼에 대한 인덱스를 만들어 Random액세스 부하를 해결하였다.
+
+
+
+### $$$ 사례1,2는 나중에 2회독 때 비슷한 상황을 만들 수 있다면 예제를 만들어보자. $$$
+
+
+
+
+
+
+
+## 5) 버퍼 pinning 효과 활용
+
+- 오라클의 경우, 한번 입력된 테이블 레코드는 절대 rowid가 바뀌지 않는다.
+
+```sql
+select * from emp 
+where rowid='AAAMfPAAEAAAAAgAAA'
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      1  TABLE ACCESS BY USER ROWID EMP (cr=1 pr=0 pw=0 time=32 us)
+
+- 인라인 뷰에서 읽은 rowid값을 이용해 테이블을 액세스하는 것도 가능
+select /*+ ordered use_nl(b) rowid(b) */b.*
+from   (select /*+ index(emp emp_pk) no_merge */rowid rid
+        from   emp
+        order by rowid) a, emp b
+where  b.rowid = a.rid
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+     14  NESTED LOOPS  (cr=15 pr=0 pw=0 time=100 us)
+     14   VIEW  (cr=1 pr=0 pw=0 time=165 us)
+     14    SORT ORDER BY (cr=1 pr=0 pw=0 time=135 us)
+     14     INDEX FULL SCAN PK_EMP (cr=1 pr=0 pw=0 time=39 us)(object id 51152)
+     14   TABLE ACCESS BY USER ROWID EMP (cr=14 pr=0 pw=0 time=176 us)
+```
+
+- Emp_pk 인덱스 전체를 스캔해 얻은 레코드를 rowid 순으로 정렬한 다음(이 중간집합의 CF는 가장 완벽하게 좋은 상태가 됨) 한 건씩 순차적으로 (NL조인 방식) emp 테이블을 액세스가 일어 난다.
+
+- 이런 경우에도 Buffer Pinning이 일어 날까?
+  ~~~sql
+  -- 아래 테이블을 만들어 테스트해보자
+  create table emp
+  as
+  select * from scott.emp, (select rownum no from dual connect by level <= 1000)
+  order by dbms_random.value;
+  
+  alter table emp add constraint emp_pk primary key(no, empno);
+  ~~~
+
+  - 10g에서는 발생하지 않지만, 11g에서는 Buffer Pinning 효과가 나타난다.
+  - Buffer Pinning 효과 => Random액세스 비효율을 최소화 할 수 있다.
+
+
+
+
+
+
+
+
+
+## 6) 수동으로 클러스터링 팩터 높이기
+
+- 테이블 데이터가 무작위로 입력되는 반면, 인덱스는 정해진 키(Key)순으로 정렬되기 때문에 대개 CF가 좋지 않게 마련이다.
+- CF가 나쁜 인덱스일 경우, **CF를 인위적으로 좋게 만드는 방법**을 생각해 볼 수 있고, 그 효과는 매우 극적이다.
+- **인덱스가 여러 개인 상황에서 특정 인덱스를 기준으로 테이블을 재정렬 하면 다른 인덱스의 CF가 나빠**질 수 있으므로, 인위적으로 CF를 높일 목적으로 테이블을 Reorg 할 때는 가장 자주 사용되는 인덱스를 기준으로 삼아야 한다.
+- 이 방법을 주기적으로 사용해야 한다면 (DB관리비용이 증가하므로) 테이블과 인덱스 Rebuild 하는 부담이 적고 효과가 확실할 때만 사용하자.
+
+
+
+
+
+![스크린샷 2024-03-30 오후 11.26.09](../../img/086.png)
+
+
+
+책에서 상품거래에 대한 인덱스 여러개를 생성하고 CF와 Random액세스 등을 확인한다.
+
+데이터를 입력할수록 CF는 안좋아 진다 (인덱스 테이블은 데이터가 순차적 입력됨)
+
+뒤에 나올 IOT, 클러스터 를 이용한 구조적 개선 방법도 있지만 (insert 성능 하락)
+
+여기선 PK인덱스 컬럼 순으로 데이터를 정렬하면 CF가 좋아짐을 테스트해보자(업무협의를 통해 테이블Reorg를 해보자)
+
+모든 인덱스에 대한 CF가 어떤 지 알아보고, 인덱스 설계에 대한 고찰도 해보자 (기존 인덱스와 반대순서로 인덱스컬럼를 추가한다면 ?)
+
