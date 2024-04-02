@@ -98,6 +98,9 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [04-테이블Random액세스부하](docs2/section01/04-테이블Random액세스부하.md)
 - [05-테이블Random액세스최소화튜닝](docs2/section01/05-테이블Random액세스최소화튜닝.md)
 - [06-IOT클러스터테이블활용](docs2/section01/06-IOT클러스터테이블활용.md)
+- [07-인덱스스캔효율](docs2/section01/07-인덱스스캔효율.md)
+- [08-인덱스설계](docs2/section01/08-인덱스설계.md)
+- [09-비트맵인덱스](docs2/section01/09-비트맵인덱스.md)
 
 
 
