@@ -102,7 +102,16 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [08-인덱스설계](docs2/section01/08-인덱스설계.md)
 - [09-비트맵인덱스](docs2/section01/09-비트맵인덱스.md)
 
+## [Section02 조인 원리와 활용](docs/section02)
 
+- [01-NestedLoops조인](docs2/section02/01-NestedLoops조인.md)
+- [02-소트머지조인](docs2/section02/02-소트머지조인.md)
+- [03-해시조인](docs2/section02/03-해시조인.md)
+- [04-조인순서의중요성](docs2/section02/04-조인순서의중요성.md)
+- [05-Outer조인](docs2/section02/05-Outer조인.md)
+- [06-스칼라서브쿼리를이용한조인](docs2/section02/06-스칼라서브쿼리를이용한조인.md)
+- [07-조인을내포한DML튜닝](docs2/section02/07-조인을내포한DML튜닝.md)
+- [08-고급조인테크닉](docs2/section02/08-고급조인테크닉.md)
 
 
 
