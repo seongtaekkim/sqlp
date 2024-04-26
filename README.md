@@ -113,7 +113,16 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [07-조인을내포한DML튜닝](docs2/section02/07-조인을내포한DML튜닝.md)
 - [08-고급조인테크닉](docs2/section02/08-고급조인테크닉.md)
 
+## [Section03 옵티마이저 원리](docs/section03)
 
+- [01-옵티마이저](docs2/section03/01-옵티마이저.md)
+- [02-옵티마이저행동에영향을미치는요소](docs2/section03/02-옵티마이저행동에영향을미치는요소.md)
+- [03-옵티마이저의한계](docs2/section03/03-옵티마이저의한계.md)
+- [04-통계정보1](docs2/section03/04-통계정보1.md)
+- [05-카디널리티](docs2/section03/05-카디널리티.md)
+- [06-히스토그램](docs2/section03/06-히스토그램.md)
+- [07-비용](docs2/section03/07-비용.md)
+- [08-통계정보2](docs2/section03/08-통계정보2.md)
 
 
 
