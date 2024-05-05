@@ -126,6 +126,27 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 
 
+## [Section04 쿼리변환](docs/section04)
+
+- [01-쿼리변환이란](docs2/section04/01-쿼리변환이란.md)
+- [02-서브쿼리Unnesting](docs2/section04/02-서브쿼리Unnesting.md)
+- [03-뷰Merging](docs2/section04/03-뷰Merging.md)
+- [04-조건절Pushing](docs2/section04/04-조건절Pushing.md)
+- [05-조건절이행](docs2/section04/05-조건절이행.md)
+- [06-조인제거](docs2/section04/06-조인제거.md)
+- [07-OR-Expansion](docs2/section04/07-OR-Expansion.md)
+- [08-공통표현식제거](docs2/section04/08-공통표현식제거.md)
+- [09-Outer조인을Inner조인으로변경](docs2/section04/09-Outer조인을Inner조인으로변경.md)
+- [10-실체화뷰쿼리로재작성](docs2/section04/10-실체화뷰쿼리로재작성.md)
+- [11-집합연산조인으로변환](docs2/section04/11-집합연산조인으로변환.md)
+- [12-기타쿼리변환](docs2/section04/12-기타쿼리변환.md)
+
+
+
+
+
+
+
 ## Etc
 
 - [v$~ table](docs/table/Dynamic-Performance-View.md)
