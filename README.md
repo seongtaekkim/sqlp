@@ -90,7 +90,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 ## 2권
 
-## [Section01 인덱스 원리와 활용](docs/section01)
+## [Section01 인덱스 원리와 활용](docs2/section01)
 
 - [01-인덱스구조](docs2/section01/01-인덱스구조.md)
 - [02-인덱스기본원리](docs2/section01/02-인덱스기본원리.md)
@@ -102,7 +102,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [08-인덱스설계](docs2/section01/08-인덱스설계.md)
 - [09-비트맵인덱스](docs2/section01/09-비트맵인덱스.md)
 
-## [Section02 조인 원리와 활용](docs/section02)
+## [Section02 조인 원리와 활용](docs2/section02)
 
 - [01-NestedLoops조인](docs2/section02/01-NestedLoops조인.md)
 - [02-소트머지조인](docs2/section02/02-소트머지조인.md)
@@ -113,7 +113,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [07-조인을내포한DML튜닝](docs2/section02/07-조인을내포한DML튜닝.md)
 - [08-고급조인테크닉](docs2/section02/08-고급조인테크닉.md)
 
-## [Section03 옵티마이저 원리](docs/section03)
+## [Section03 옵티마이저 원리](docs2/section03)
 
 - [01-옵티마이저](docs2/section03/01-옵티마이저.md)
 - [02-옵티마이저행동에영향을미치는요소](docs2/section03/02-옵티마이저행동에영향을미치는요소.md)
@@ -126,7 +126,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 
 
-## [Section04 쿼리변환](docs/section04)
+## [Section04 쿼리변환](docs2/section04)
 
 - [01-쿼리변환이란](docs2/section04/01-쿼리변환이란.md)
 - [02-서브쿼리Unnesting](docs2/section04/02-서브쿼리Unnesting.md)
@@ -142,6 +142,16 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [12-기타쿼리변환](docs2/section04/12-기타쿼리변환.md)
 
 
+
+## [Section05 소트튜닝](docs2/section05)
+
+- [01-소트수행원리](docs2/section05/01-소트수행원리.md)
+- [02-소트를발생시키는오퍼레이션](docs2/section05/02-소트를발생시키는오퍼레이션.md)
+- [03-데이터모델측면에서의검토](docs2/section05/03-데이터모델측면에서의검토.md)
+- [04-소트가발생하지않도록SQL작성](docs2/section05/04-소트가발생하지않도록SQL작성.md)
+- [05-인덱스를이용한소트연산대체](docs2/section05/05-인덱스를이용한소트연산대체.md)
+- [06-SortArea를적게사용하도록SQL작성](docs2/section05/06-SortArea를적게사용하도록SQL작성.md)
+- [07-SortArea크기조정](docs2/section05/07-SortArea크기조정.md)
 
 
 
