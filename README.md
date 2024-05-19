@@ -157,6 +157,14 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 
 
+## [Section06 파티셔닝](docs2/section06)
+
+- [01-테이블파티셔닝](docs2/section06/01-테이블파티셔닝.md)
+- [02-파티션Pruning](docs2/section06/02-파티션Pruning.md)
+- [03-인덱스파티셔닝](docs2/section06/03-인덱스파티셔닝.md)
+
+
+
 ## Etc
 
 - [v$~ table](docs/table/Dynamic-Performance-View.md)
