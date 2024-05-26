@@ -165,6 +165,16 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 
 
+## [Section07 병렬처리](docs2/section07) 
+
+- [01-기본개념](docs2/section07/01-기본개념.md)
+- [02-병렬OrderBy와GroupBy](docs2/section07/02-병렬OrderBy와GroupBy.md)
+- [03-병렬조인](docs2/section07/03-병렬조인.md)
+- [04-PQ_DISTRIBUTE힌트](docs2/section07/04-PQ_DISTRIBUTE힌트.md)
+- [05-병렬처리에관한기타상식](docs2/section07/05-병렬처리에관한기타상식.md)
+
+
+
 ## Etc
 
 - [v$~ table](docs/table/Dynamic-Performance-View.md)
