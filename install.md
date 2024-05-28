@@ -32,6 +32,32 @@ docker context use colima # 도커 클라이언트를 변경.
 
 
 
+
+
+### 접속오류 해결방법
+
+- docker exec -it 8bd0f10287e2 sqlplus 를 통해서 접속은 되는데,
+- 다른 앱에서 접근이 안되고 The Network Adapter could not establish the connection   등의 에러가 발생한다면
+  아래 옵션으로 변경하고 colima, image를 재실행 해보자
+
+https://logindev.github.io/posts/3000/
+
+~~~sh
+# 0 이 조회된다면
+select dbms_xdb.gethttpport() from dual; 
+# 아래 옵션을 삽입
+exec dbms_xdb.sethttpport('8080');
+
+colima stop
+colima delete
+colima start --memory 4 --arch x86_64
+docker run --name oracle11g -e ORACLE_PASSWORD=pass -d -p 8080:8080 -p 1521:1521 jaspeen/oracle-xe-11g
+~~~
+
+
+
+
+
 ### image pull, run
 
 ~~~
@@ -47,7 +73,7 @@ docker logs -f oracle
 ### listener 확인
 
 ```sh
-bash-4.4$ cd /opt/oracle/homes/OraDBHome21cXE/network/admin
+bash-4.4$ ㄷ
 bash-4.4$ ls
 listener.ora  sqlnet.ora  tnsnames.ora
 bash-4.4$ cat listener.ora
@@ -97,7 +123,11 @@ system/pass
 접속2)
 docker exec -it oracle bash
 sqlplus system@localhost 
-# password 작성
+# password 작성select
+department, sum(salary) as total
+from employees
+group by department
+having total > 1000;
 ~~~
 
 ~~~sql
