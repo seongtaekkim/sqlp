@@ -186,6 +186,8 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 ## [1장. 데이터 모델링의 이해](docs3/section01)
 
 - [01-데이터모델의이해](docs3/section01/01-데이터모델의이해.md)
+- [02-엔터티](docs3/section01/02-엔터티.md)
+- [03-속성](docs3/section01/03-속성.md)
 
 
 
