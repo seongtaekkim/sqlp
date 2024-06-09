@@ -204,6 +204,26 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 
 
+## 과목2. SQL 기본 및 활용
+
+## [1장. SQL 기본](docs3/ch02-sec01)
+
+- [01.관계형데이터베이스개요](docs3/ch02-sec01/01.관계형데이터베이스개요.md)
+- [02.DDL](docs3/ch02-sec01/02.DDL.md)
+- [03.DML](docs3/ch02-sec01/03.DML.md)
+- [04.TCL](docs3/ch02-sec01/04.TCL.md)
+- [05.WHERE](docs3/ch02-sec01/05.WHERE.md)
+- [06.함수](docs3/ch02-sec01/06.함수.md)
+- [07.GROUPBY-HAVING](docs3/ch02-sec01/07.GROUPBY-HAVING.md)
+- [08.ORDERBY](docs3/ch02-sec01/08.ORDERBY.md)
+- [09.조인](docs3/ch02-sec01/09.조인.md)
+
+
+
+
+
+
+
 ## Etc
 
 - [v$~ table](docs/table/Dynamic-Performance-View.md)
