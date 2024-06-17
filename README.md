@@ -229,6 +229,7 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 - [05-그룹함수](docs3/ch02-sec02/05-그룹함수.md)
 - [06-윈도우함수](docs3/ch02-sec02/06-윈도우함수.md)
 - [07-DCL](docs3/ch02-sec02/07-DCL.md)
+- [08-절차형SQL](docs3/ch02-sec02/08-절차형SQL.md)
 
 
 
