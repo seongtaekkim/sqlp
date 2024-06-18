@@ -233,6 +233,18 @@ sqlp 자격증 취득 목적으로 oracle 옵티마이저, 튜닝 등을 정리
 
 
 
+## [3장. SQL 최적화 기본 원리](docs3/ch02-sec03)
+
+- [01-옵티마이저와실행계획](docs3/ch02-sec03/01-옵티마이저와실행계획.md)
+- [02-인덱스기본](docs3/ch02-sec03/02-인덱스기본.md)
+- [03-조인수행원리](docs3/ch02-sec03/03-조인수행원리.md)
+
+
+
+
+
+
+
 ## Etc
 
 - [v$~ table](docs/table/Dynamic-Performance-View.md)
